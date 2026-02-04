@@ -19,10 +19,8 @@ export class AuthService {
       throw new ConflictException('Email already in use');
     }
 
-    // Create User (Password hashed automatically in Schema hook)
     const user = await this.usersService.create(createUserDto);
 
-    // Auto-login after register (Optional) or return success
     return {
       message: 'User registered successfully',
       user: { id: user._id.toString(), email: user.email, role: user.role }
@@ -32,19 +30,19 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    // A. Find User
+    // Find User
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid Email');
     }
 
-    // B. Check Password
+    // Check Password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid Password');
     }
 
-    // C. Generate Token
+    // Generate Token
     const payload = { sub: user._id.toString(), email: user.email, role: user.role };
 
     return {
