@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Database Service
+  mongo:
+    image: mongo:latest
+    container_name: eventflow_mongo
+    ports:
+      - '27017:27017' # Accessible from host via localhost:27017
+    volumes:
+      - mongo_data:/data/db # Persist data even if container stops
+    networks:
+      - eventflow-network
+
+  # 2. Backend Service (NestJS)
+  backend:
+    build: ./backend
+    container_name: eventflow_backend
+    ports:
+      - '3000:3000' # Host Port : Container Port
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/eventflow # 'mongo' is the service name above
+      - PORT=3000
+      - JWT_SECRET=SuperSecretKey_EventFlow_2026
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app # Hot Reload: Syncs your code changes
+      - /app/node_modules # Prevents overwriting container node_modules
+    networks:
+      - eventflow-network
+
+  # 3. Frontend Service (Next.js)
+  frontend:
+    build: ./frontend
+    container_name: eventflow_frontend
+    ports:
+      - '3001:3000' # Access Front on localhost:3001 (to avoid conflict with Back 3000)
+    environment:
+      # Browser requests go to localhost:3000 (Backend mapped to host)
+      - NEXT_PUBLIC_API_URL=http://localhost:3000 
+    volumes:
+      - ./frontend:/app # Hot Reload
+      - /app/node_modules # Prevents overwriting container node_modules
+    networks:
+      - eventflow-network
+
+# Define volumes and networks
+volumes:
+  mongo_data:
+
+networks:
+  eventflow-network:
+    driver: bridge
