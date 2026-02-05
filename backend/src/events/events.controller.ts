@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/schemas/user.schema';
+import { EventStatus } from './schemas/event.schema';
 
 @Controller('events')
 export class EventsController {
@@ -23,9 +24,21 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findAllAdmin() {
+    return this.eventsService.findAll();
+  }
+
+  @Get()
+  findAllPublic() {
+    return this.eventsService.findAll({ status: EventStatus.PUBLISHED });
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(id);
+  findOnePublic(@Param('id') id: string) {
+    return this.eventsService.findOnePublic(id);
   }
 
   @Patch(':id')
