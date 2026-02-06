@@ -17,25 +17,25 @@ export class Event {
   imageUrl?: string;
 
   @Prop({ required: true })
-  title?: string;
+  title!: string;
 
   @Prop({ required: true })
-  description?: string;
+  description!: string;
 
   @Prop({ required: true })
-  date?: Date;
+  date!: Date;
 
   @Prop({ required: true })
-  location?: string;
+  location!: string;
 
   @Prop({ required: true, min: 1 })
-  totalCapacity?: number;
+  totalCapacity!: number;
 
   @Prop({ required: true, enum: EventStatus, default: EventStatus.DRAFT })
-  status?: EventStatus;
+  status!: EventStatus;
 
   @Prop({ default: 0 })
-  reservedSeats?: number;
+  reservedSeats!: number;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

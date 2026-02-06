@@ -46,7 +46,7 @@
       "name": "Auth",
       "item": [
         {
-          "name": "Register Admin",
+          "name": "Register",
           "event": [
             {
               "listen": "test",
@@ -54,13 +54,13 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    const jsonData = pm.response.json();",
-                  "    if (jsonData.access_token) {",
-                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
-                  "        pm.collectionVariables.set('adminToken', jsonData.access_token);",
-                  "        console.log('Admin token saved:', jsonData.access_token);",
+                  "    if (jsonData.data && jsonData.data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', jsonData.data.access_token);",
+                  "        pm.collectionVariables.set('participantToken', jsonData.data.access_token);",
+                  "        console.log('Participant token saved:', jsonData.data.access_token);",
                   "    }",
-                  "    if (jsonData.user && jsonData.user.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.user.id);",
+                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.data.user.id);",
                   "    }",
                   "}"
                 ],
@@ -78,51 +78,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Admin User\",\n  \"email\": \"admin@eventflow.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            },
-            "description": "Register a new admin user. Token is automatically saved to adminToken variable."
-          },
-          "response": []
-        },
-        {
-          "name": "Register Participant",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const jsonData = pm.response.json();",
-                  "    if (jsonData.access_token) {",
-                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
-                  "        pm.collectionVariables.set('participantToken', jsonData.access_token);",
-                  "        console.log('Participant token saved:', jsonData.access_token);",
-                  "    }",
-                  "    if (jsonData.user && jsonData.user.id) {",
-                  "        pm.collectionVariables.set('userId', jsonData.user.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Participant\",\n  \"email\": \"participant@eventflow.com\",\n  \"password\": \"participant123\",\n  \"role\": \"participant\"\n}"
+              "raw": "{\n  \"fullName\": \"John Participant\",\n  \"email\": \"participant@eventflow.com\",\n  \"password\": \"participant123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -142,15 +98,15 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    const jsonData = pm.response.json();",
-                  "    if (jsonData.access_token) {",
-                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
-                  "        console.log('Token saved:', jsonData.access_token);",
+                  "    if (jsonData.data && jsonData.data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', jsonData.data.access_token);",
+                  "        console.log('Token saved:', jsonData.data.access_token);",
                   "        ",
                   "        // Save to role-specific token based on user role",
-                  "        if (jsonData.user && jsonData.user.role === 'admin') {",
-                  "            pm.collectionVariables.set('adminToken', jsonData.access_token);",
-                  "        } else if (jsonData.user && jsonData.user.role === 'participant') {",
-                  "            pm.collectionVariables.set('participantToken', jsonData.access_token);",
+                  "        if (jsonData.data.user && jsonData.data.user.role === 'admin') {",
+                  "            pm.collectionVariables.set('adminToken', jsonData.data.access_token);",
+                  "        } else if (jsonData.data.user && jsonData.data.user.role === 'participant') {",
+                  "            pm.collectionVariables.set('participantToken', jsonData.data.access_token);",
                   "        }",
                   "    }",
                   "}"
@@ -179,9 +135,47 @@
             "description": "Login with email and password. Token is automatically saved to access_token variable."
           },
           "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('access_token', '');",
+                  "    console.log('Token cleared after logout');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout and invalidate the current token. Clears the access_token variable."
+          },
+          "response": []
         }
       ],
-      "description": "Authentication endpoints for user registration and login"
+      "description": "Authentication endpoints for user registration, login, and logout"
     },
     {
       "name": "Users",
@@ -246,6 +240,16 @@
         {
           "name": "Get User By ID",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -265,7 +269,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{access_token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -298,7 +302,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{access_token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -329,9 +333,9 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    const jsonData = pm.response.json();",
-                  "    if (jsonData._id) {",
-                  "        pm.collectionVariables.set('eventId', jsonData._id);",
-                  "        console.log('Event ID saved:', jsonData._id);",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('eventId', jsonData.data._id);",
+                  "        console.log('Event ID saved:', jsonData.data._id);",
                   "    }",
                   "}"
                 ],
@@ -494,9 +498,9 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    const jsonData = pm.response.json();",
-                  "    if (jsonData._id) {",
-                  "        pm.collectionVariables.set('reservationId', jsonData._id);",
-                  "        console.log('Reservation ID saved:', jsonData._id);",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('reservationId', jsonData.data._id);",
+                  "        console.log('Reservation ID saved:', jsonData.data._id);",
                   "    }",
                   "}"
                 ],

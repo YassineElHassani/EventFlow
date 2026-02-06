@@ -25,6 +25,7 @@ const mockEventsService = {
   findOnePublic: jest.fn(),
   findOne: jest.fn(),
   update: jest.fn(),
+  incrementSeats: jest.fn(),
 };
 
 // Mock Pdf Service
@@ -76,9 +77,7 @@ describe('ReservationsService', () => {
 
     expect(result).toBeDefined();
     expect(result.status).toBe(ReservationStatus.PENDING);
-    expect(mockEventsService.update).toHaveBeenCalledWith('evt1', {
-      reservedSeats: 11,
-    });
+    expect(mockEventsService.incrementSeats).toHaveBeenCalledWith('evt1', 1);
   });
 
   // Event Full (Sold Out) Failure
@@ -121,17 +120,12 @@ describe('ReservationsService', () => {
       save: jest.fn(),
     };
 
-    const eventMock = { _id: 'evt1', reservedSeats: 10 };
-
     MockModel.findById.mockResolvedValue(existingRes);
-    mockEventsService.findOne.mockResolvedValue(eventMock);
 
     await service.updateStatus('res1', ReservationStatus.REFUSED);
 
     expect(existingRes.status).toBe(ReservationStatus.REFUSED);
     expect(existingRes.save).toHaveBeenCalled();
-    expect(mockEventsService.update).toHaveBeenCalledWith('evt1', {
-      reservedSeats: 9,
-    });
+    expect(mockEventsService.incrementSeats).toHaveBeenCalledWith('evt1', -1);
   });
 });

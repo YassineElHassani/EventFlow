@@ -29,7 +29,7 @@ export class ReservationsService {
 
     const event = await this.eventsService.findOnePublic(eventId);
 
-    if ((event.reservedSeats || 0) >= (event.totalCapacity || 0)) {
+    if (event.reservedSeats >= event.totalCapacity) {
       throw new ConflictException('Event is fully booked (Sold Out).');
     }
 
@@ -46,11 +46,8 @@ export class ReservationsService {
 
     await reservation.save();
 
-    // Increment reservedSeats
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    await this.eventsService.update(eventId, {
-      reservedSeats: (event.reservedSeats || 0) + 1,
-    } as any);
+    // Atomically increment reservedSeats
+    await this.eventsService.incrementSeats(eventId, 1);
 
     return reservation;
   }
@@ -86,14 +83,8 @@ export class ReservationsService {
         previousStatus !== ReservationStatus.REFUSED &&
         previousStatus !== ReservationStatus.CANCELED
       ) {
-        // Decrement seat
-        const event = await this.eventsService.findOne(reservation.eventId);
-        if (event) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          await this.eventsService.update(reservation.eventId, {
-            reservedSeats: Math.max(0, (event.reservedSeats || 0) - 1),
-          } as any);
-        }
+        // Atomically decrement seat
+        await this.eventsService.incrementSeats(reservation.eventId, -1);
       }
     }
 
@@ -115,14 +106,8 @@ export class ReservationsService {
     reservation.status = ReservationStatus.CANCELED;
     await reservation.save();
 
-    // Decrement seat
-    const event = await this.eventsService.findOne(reservation.eventId);
-    if (event) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      await this.eventsService.update(reservation.eventId, {
-        reservedSeats: Math.max(0, (event.reservedSeats || 0) - 1),
-      } as any);
-    }
+    // Atomically decrement seat
+    await this.eventsService.incrementSeats(reservation.eventId, -1);
 
     return reservation;
   }
@@ -142,7 +127,8 @@ export class ReservationsService {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return this.pdfService.generateTicket(reservation as any);
+    return this.pdfService.generateTicket(
+      reservation as unknown as Parameters<PdfService['generateTicket']>[0],
+    );
   }
 }

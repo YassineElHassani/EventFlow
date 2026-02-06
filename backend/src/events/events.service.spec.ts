@@ -123,4 +123,31 @@ describe('EventsService', () => {
     const result = await service.findOnePublic('someId');
     expect(result.status).toBe(EventStatus.PUBLISHED);
   });
+
+  // INCREMENT SEATS
+  it('should atomically increment reserved seats', async () => {
+    const updatedEvent = { ...mockEvent, reservedSeats: 1 };
+    jest.spyOn(MockEventModel, 'findByIdAndUpdate').mockReturnValueOnce({
+      exec: jest.fn().mockResolvedValue(updatedEvent),
+    } as any);
+
+    const result = await service.incrementSeats('someId', 1);
+    expect(result.reservedSeats).toBe(1);
+    expect(MockEventModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      'someId',
+      { $inc: { reservedSeats: 1 } },
+      { new: true },
+    );
+  });
+
+  // INCREMENT SEATS (Not Found)
+  it('should throw NotFoundException when incrementing seats for missing event', async () => {
+    jest.spyOn(MockEventModel, 'findByIdAndUpdate').mockReturnValueOnce({
+      exec: jest.fn().mockResolvedValue(null),
+    } as any);
+
+    await expect(service.incrementSeats('badId', 1)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
 });

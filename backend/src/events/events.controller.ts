@@ -36,11 +36,13 @@ export class EventsController {
   }
 
   @Get()
-  async findAll(): Promise<ApiResponse> {
-    const events = await this.eventsService.findAll();
+  async findAllPublic(): Promise<ApiResponse> {
+    const events = await this.eventsService.findAll({
+      status: EventStatus.PUBLISHED,
+    });
     return {
       success: true,
-      message: 'Events retrieved successfully',
+      message: 'Published events retrieved successfully',
       data: events,
     };
   }
@@ -53,18 +55,6 @@ export class EventsController {
     return {
       success: true,
       message: 'All events retrieved successfully',
-      data: events,
-    };
-  }
-
-  @Get()
-  async findAllPublic(): Promise<ApiResponse> {
-    const events = await this.eventsService.findAll({
-      status: EventStatus.PUBLISHED,
-    });
-    return {
-      success: true,
-      message: 'Published events retrieved successfully',
       data: events,
     };
   }

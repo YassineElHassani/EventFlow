@@ -61,12 +61,13 @@ describe('AuthService', () => {
       fullName: 'Yassine',
       email: 'test@example.com',
       password: '1234abcd',
-      role: UserRole.PARTICIPANT,
     };
     const result = await service.register(dto);
 
     expect(result).toHaveProperty('message', 'User registered successfully');
-    expect(mockUsersService.create).toHaveBeenCalled();
+    expect(mockUsersService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ role: UserRole.PARTICIPANT }),
+    );
   });
 
   // Register Fail (Email Exists)
@@ -77,7 +78,6 @@ describe('AuthService', () => {
       fullName: 'Yassine',
       email: 'test@example.com',
       password: '1234abcd',
-      role: UserRole.PARTICIPANT,
     };
 
     await expect(async () => await service.register(dto)).rejects.toThrow(
@@ -126,5 +126,19 @@ describe('AuthService', () => {
           password: 'wrong_password',
         }),
     ).rejects.toThrow(UnauthorizedException);
+  });
+
+  // Logout
+  it('should blacklist token on logout', () => {
+    const token = 'some_jwt_token';
+    const result = service.logout(token);
+
+    expect(result).toHaveProperty('success', true);
+    expect(result).toHaveProperty('message', 'Logged out successfully');
+    expect(service.isTokenBlacklisted(token)).toBe(true);
+  });
+
+  it('should return false for non-blacklisted token', () => {
+    expect(service.isTokenBlacklisted('valid_token')).toBe(false);
   });
 });
