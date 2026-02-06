@@ -8,7 +8,9 @@ import { PdfService } from './pdf.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Reservation.name, schema: ReservationSchema }]),
+    MongooseModule.forFeature([
+      { name: Reservation.name, schema: ReservationSchema },
+    ]),
     EventsModule,
   ],
   controllers: [ReservationsController],

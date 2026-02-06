@@ -1,44 +1,44 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
-    ADMIN = 'admin',
-    PARTICIPANT = 'participant',
+  ADMIN = 'admin',
+  PARTICIPANT = 'participant',
 }
 
 export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-    _id: Types.ObjectId;
+  @Prop({ required: true })
+  fullName!: string;
 
-    @Prop({ required: true })
-    fullName: string;
+  @Prop({ required: true, unique: true }) // Email unique required
+  email!: string;
 
-    @Prop({ required: true, unique: true }) // Email unique required
-    email: string;
+  @Prop({ required: true })
+  password!: string;
 
-    @Prop({ required: true })
-    password: string;
-
-    @Prop({
-        required: true,
-        enum: UserRole,
-        default: UserRole.PARTICIPANT // By default, everyone is a Participant
-    })
-    role: UserRole;
+  @Prop({
+    required: true,
+    enum: UserRole,
+    default: UserRole.PARTICIPANT, // By default, everyone is a Participant
+  })
+  role!: UserRole;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.pre('save', async function (next: Function) {
-    
-    if (!this.isModified('password')) {
-        return next();
-    }
+UserSchema.pre('save', async function () {
+  if (!this.isModified('password')) {
+    return;
+  }
 
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+  if (!this.password) {
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });

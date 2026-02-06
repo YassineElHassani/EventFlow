@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,6 +16,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from './schemas/user.schema';
+import type { ApiResponse } from '../common/interfaces/api-response.interface';
 
 @Controller('users')
 export class UsersController {
@@ -14,29 +25,66 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse> {
+    const user = await this.usersService.create(createUserDto);
+    return {
+      success: true,
+      message: 'User created successfully',
+      data: user,
+    };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(): Promise<ApiResponse> {
+    const users = await this.usersService.findAll();
+    return {
+      success: true,
+      message: 'Users retrieved successfully',
+      data: users,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<ApiResponse> {
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      success: true,
+      message: 'User retrieved successfully',
+      data: user,
+    };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<ApiResponse> {
+    const user = await this.usersService.update(id, updateUserDto);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      success: true,
+      message: 'User updated successfully',
+      data: user,
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  async remove(@Param('id') id: string): Promise<ApiResponse> {
+    const user = await this.usersService.remove(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      success: true,
+      message: 'User deleted successfully',
+      data: user,
+    };
   }
 }

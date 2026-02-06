@@ -1,7 +1,7 @@
-# frontend/Dockerfile
+# backend/Dockerfile
 
 # 1. Use Node.js image
-FROM node:18-alpine
+FROM node:20-alpine
 
 # 2. Set working directory
 WORKDIR /app
@@ -15,8 +15,8 @@ RUN npm install
 # 5. Copy the rest of the code
 COPY . .
 
-# 6. Expose the port (Next.js runs on 3000 by default inside container)
+# 6. Expose the port (NestJS runs on 3000 by default inside container)
 EXPOSE 3000
 
-# 7. Start Next.js in Development mode
-CMD ["npm", "run", "dev"]
+# 7. Start NestJS in Development mode
+CMD ["npm", "run", "start:dev"]

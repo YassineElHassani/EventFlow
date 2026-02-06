@@ -4,5 +4,5 @@ import { ReservationStatus } from '../schemas/reservation.schema';
 export class UpdateReservationStatusDto {
   @IsNotEmpty()
   @IsEnum(ReservationStatus)
-  status: ReservationStatus;
+  status!: ReservationStatus;
 }

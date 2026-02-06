@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Request, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Request,
+  Res,
+  NotFoundException,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -7,28 +18,64 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/schemas/user.schema';
+import type { ApiResponse } from '../common/interfaces/api-response.interface';
+
+interface RequestWithUser {
+  user: {
+    _id: string;
+    email: string;
+    role: UserRole;
+  };
+}
 
 @Controller('reservations')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ReservationsController {
-  constructor(private readonly reservationsService: ReservationsService) { }
+  constructor(private readonly reservationsService: ReservationsService) {}
 
   @Post()
   @Roles(UserRole.PARTICIPANT)
-  create(@Body() createReservationDto: CreateReservationDto, @Request() req) {
-    return this.reservationsService.create(createReservationDto, req.user._id);
+  async create(
+    @Body() createReservationDto: CreateReservationDto,
+    @Request() req: RequestWithUser,
+  ): Promise<ApiResponse> {
+    const reservation = await this.reservationsService.create(
+      createReservationDto,
+      req.user._id,
+    );
+    return {
+      success: true,
+      message: 'Reservation created successfully',
+      data: reservation,
+    };
   }
 
   @Get('my')
   @Roles(UserRole.PARTICIPANT)
-  findMyReservations(@Request() req) {
-    return this.reservationsService.findMyReservations(req.user._id);
+  async findMyReservations(
+    @Request() req: RequestWithUser,
+  ): Promise<ApiResponse> {
+    const reservations = await this.reservationsService.findMyReservations(
+      req.user._id,
+    );
+    return {
+      success: true,
+      message: 'My reservations retrieved successfully',
+      data: reservations,
+    };
   }
 
   @Get(':id/ticket')
   @Roles(UserRole.PARTICIPANT)
-  async downloadTicket(@Param('id') id: string, @Request() req, @Res() res: Response) {
-    const pdfBuffer = await this.reservationsService.getTicketPdf(id, req.user._id);
+  async downloadTicket(
+    @Param('id') id: string,
+    @Request() req: RequestWithUser,
+    @Res() res: Response,
+  ) {
+    const pdfBuffer = await this.reservationsService.getTicketPdf(
+      id,
+      req.user._id,
+    );
 
     res.set({
       'Content-Type': 'application/pdf',
@@ -41,19 +88,52 @@ export class ReservationsController {
 
   @Patch(':id/cancel')
   @Roles(UserRole.PARTICIPANT)
-  cancel(@Param('id') id: string, @Request() req) {
-    return this.reservationsService.cancelMyReservation(id, req.user._id);
+  async cancel(
+    @Param('id') id: string,
+    @Request() req: RequestWithUser,
+  ): Promise<ApiResponse> {
+    const reservation = await this.reservationsService.cancelMyReservation(
+      id,
+      req.user._id,
+    );
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+    return {
+      success: true,
+      message: 'Reservation cancelled successfully',
+      data: reservation,
+    };
   }
 
   @Get('event/:eventId')
   @Roles(UserRole.ADMIN)
-  findByEvent(@Param('eventId') eventId: string) {
-    return this.reservationsService.findByEvent(eventId);
+  async findByEvent(@Param('eventId') eventId: string): Promise<ApiResponse> {
+    const reservations = await this.reservationsService.findByEvent(eventId);
+    return {
+      success: true,
+      message: 'Event reservations retrieved successfully',
+      data: reservations,
+    };
   }
 
   @Patch(':id/status')
   @Roles(UserRole.ADMIN)
-  updateStatus(@Param('id') id: string, @Body() updateDto: UpdateReservationStatusDto) {
-    return this.reservationsService.updateStatus(id, updateDto.status);
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateReservationStatusDto,
+  ): Promise<ApiResponse> {
+    const reservation = await this.reservationsService.updateStatus(
+      id,
+      updateDto.status,
+    );
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+    return {
+      success: true,
+      message: 'Reservation status updated successfully',
+      data: reservation,
+    };
   }
 }

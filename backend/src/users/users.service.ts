@@ -9,16 +9,16 @@ import { User, UserDocument } from './schemas/user.schema';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const newUser = new this.userModel(createUserDto);
     return newUser.save();
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserDocument[]> {
     return this.userModel.find().exec();
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
   }
 
@@ -26,13 +26,16 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDocument | null> {
     return this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
   }
 
-  async remove(id: string): Promise<User | null> {
+  async remove(id: string): Promise<UserDocument | null> {
     return this.userModel.findByIdAndDelete(id).exec();
   }
 }

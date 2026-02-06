@@ -1,7 +1,7 @@
 # frontend/Dockerfile
 
 # 1. Use Node.js image
-FROM node:18-alpine
+FROM node:20-alpine
 
 # 2. Set working directory
 WORKDIR /app

@@ -7,14 +7,16 @@ import { Event, EventDocument, EventStatus } from './schemas/event.schema';
 
 @Injectable()
 export class EventsService {
-  constructor(@InjectModel(Event.name) private eventModel: Model<EventDocument>) {}
+  constructor(
+    @InjectModel(Event.name) private eventModel: Model<EventDocument>,
+  ) {}
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
     const createdEvent = new this.eventModel(createEventDto);
     return createdEvent.save();
   }
 
-  async findAll(filter: any = {}): Promise<Event[]> {
+  async findAll(filter: Record<string, unknown> = {}): Promise<Event[]> {
     return this.eventModel.find(filter).sort({ date: 1 }).exec();
   }
 
@@ -25,10 +27,12 @@ export class EventsService {
   }
 
   async findOnePublic(id: string): Promise<Event> {
-    const event = await this.eventModel.findOne({ 
-      _id: id, 
-      status: EventStatus.PUBLISHED
-    }).exec();
+    const event = await this.eventModel
+      .findOne({
+        _id: id,
+        status: EventStatus.PUBLISHED,
+      })
+      .exec();
 
     if (!event) {
       throw new NotFoundException(`Event not found or not available`);

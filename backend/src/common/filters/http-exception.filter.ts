@@ -1,39 +1,48 @@
 import {
-    ExceptionFilter,
-    Catch,
-    ArgumentsHost,
-    HttpException,
-    HttpStatus,
-    Logger,
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(HttpExceptionFilter.name);
+  private readonly logger = new Logger(HttpExceptionFilter.name);
 
-    catch(exception: unknown, host: ArgumentsHost) {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
-        const request = ctx.getRequest<Request>();
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
-        const status =
-            exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        const message =
-            exception instanceof HttpException ? exception.getResponse() : 'Internal Server Error';
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'Internal Server Error';
 
-        const errorResponse = typeof message === 'string' ? { message } : (message as object);
+    const errorResponse = typeof message === 'string' ? { message } : message;
 
-        this.logger.error(
-            `Http Status: ${status} Error Message: ${JSON.stringify(errorResponse)}`,
-        );
+    this.logger.error(
+      `Http Status: ${status} Error Message: ${JSON.stringify(errorResponse)}`,
+    );
 
-        response.status(status).json({
-            statusCode: status,
-            timestamp: new Date().toISOString(),
-            path: request.url,
-            ...errorResponse,
-        });
-    }
+    response.status(status).json({
+      success: false,
+      message:
+        typeof errorResponse === 'object' && 'message' in errorResponse
+          ? errorResponse.message
+          : 'An error occurred',
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      error: errorResponse,
+    });
+  }
 }

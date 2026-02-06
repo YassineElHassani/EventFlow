@@ -1,29 +1,42 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min,
+} from 'class-validator';
 import { EventStatus } from '../schemas/event.schema';
 
 export class CreateEventDto {
-    @IsNotEmpty()
-    @IsString()
-    title: string;
+  @IsOptional()
+  @IsUrl()
+  imageUrl?: string;
 
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+  @IsNotEmpty()
+  @IsString()
+  title!: string;
 
-    @IsNotEmpty()
-    @IsDateString()
-    date: Date;
+  @IsNotEmpty()
+  @IsString()
+  description!: string;
 
-    @IsNotEmpty()
-    @IsString()
-    location: string;
+  @IsNotEmpty()
+  @IsDateString()
+  date!: Date;
 
-    @IsNotEmpty()
-    @IsNumber()
-    @Min(1)
-    totalCapacity: number;
+  @IsNotEmpty()
+  @IsString()
+  location!: string;
 
-    @IsOptional()
-    @IsEnum(EventStatus)
-    status?: EventStatus;
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  totalCapacity!: number;
+
+  @IsOptional()
+  @IsEnum(EventStatus)
+  status?: EventStatus;
 }

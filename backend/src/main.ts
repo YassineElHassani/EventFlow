@@ -20,13 +20,13 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
     credentials: true,
   });
 
-  // Use PORT 3001 as default port
-  const port = process.env.PORT || 3001;
+  // Use PORT 3000 as default port
+  const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
 }
-bootstrap();
+void bootstrap();

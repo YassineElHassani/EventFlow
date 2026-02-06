@@ -1,0 +1,671 @@
+{
+  "info": {
+    "name": "EventFlow API",
+    "description": "Complete API collection for EventFlow - Event Management System with automatic token management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "participantToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.access_token) {",
+                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "        pm.collectionVariables.set('adminToken', jsonData.access_token);",
+                  "        console.log('Admin token saved:', jsonData.access_token);",
+                  "    }",
+                  "    if (jsonData.user && jsonData.user.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Admin User\",\n  \"email\": \"admin@eventflow.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new admin user. Token is automatically saved to adminToken variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Register Participant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.access_token) {",
+                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "        pm.collectionVariables.set('participantToken', jsonData.access_token);",
+                  "        console.log('Participant token saved:', jsonData.access_token);",
+                  "    }",
+                  "    if (jsonData.user && jsonData.user.id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Participant\",\n  \"email\": \"participant@eventflow.com\",\n  \"password\": \"participant123\",\n  \"role\": \"participant\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new participant. Token is automatically saved to participantToken variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.access_token) {",
+                  "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "        console.log('Token saved:', jsonData.access_token);",
+                  "        ",
+                  "        // Save to role-specific token based on user role",
+                  "        if (jsonData.user && jsonData.user.role === 'admin') {",
+                  "            pm.collectionVariables.set('adminToken', jsonData.access_token);",
+                  "        } else if (jsonData.user && jsonData.user.role === 'participant') {",
+                  "            pm.collectionVariables.set('participantToken', jsonData.access_token);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@eventflow.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password. Token is automatically saved to access_token variable."
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for user registration and login"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"New User\",\n  \"email\": \"newuser@eventflow.com\",\n  \"password\": \"password123\",\n  \"role\": \"participant\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Admin only - Create a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Admin only - Get all users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Get a specific user by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Update user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Delete a user"
+          },
+          "response": []
+        }
+      ],
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create Event (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData._id) {",
+                  "        pm.collectionVariables.set('eventId', jsonData._id);",
+                  "        console.log('Event ID saved:', jsonData._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://images.unsplash.com/photo-1540575467063-178a50c2df87\",\n  \"title\": \"Tech Conference 2026\",\n  \"description\": \"Annual technology conference featuring the latest innovations\",\n  \"date\": \"2026-06-15T09:00:00.000Z\",\n  \"location\": \"Casablanca Convention Center\",\n  \"totalCapacity\": 200,\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "Admin only - Create a new event. Event ID is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Events (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "Public endpoint - Get all published events"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Events (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/admin/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "admin", "all"]
+            },
+            "description": "Admin only - Get all events including drafts and canceled"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
+            },
+            "description": "Public endpoint - Get a specific published event"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Conference 2026 - Updated\",\n  \"imageUrl\": \"https://images.unsplash.com/photo-1505373877841-8d25f7d46678\",\n  \"totalCapacity\": 250\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
+            },
+            "description": "Admin only - Update event details"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Event (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
+            },
+            "description": "Admin only - Delete an event"
+          },
+          "response": []
+        }
+      ],
+      "description": "Event management endpoints"
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Create Reservation (Participant)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData._id) {",
+                  "        pm.collectionVariables.set('reservationId', jsonData._id);",
+                  "        console.log('Reservation ID saved:', jsonData._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"{{eventId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservations",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations"]
+            },
+            "description": "Participant only - Book a spot for an event. Reservation ID is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Reservations (Participant)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservations/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations", "my"]
+            },
+            "description": "Participant only - Get all my reservations"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Ticket (Participant)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservations/{{reservationId}}/ticket",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations", "{{reservationId}}", "ticket"]
+            },
+            "description": "Participant only - Download reservation ticket as PDF"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Reservation (Participant)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservations/{{reservationId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations", "{{reservationId}}", "cancel"]
+            },
+            "description": "Participant only - Cancel my reservation"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reservations By Event (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservations/event/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations", "event", "{{eventId}}"]
+            },
+            "description": "Admin only - Get all reservations for a specific event"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reservation Status (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservations/{{reservationId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["reservations", "{{reservationId}}", "status"]
+            },
+            "description": "Admin only - Update reservation status (PENDING, CONFIRMED, REFUSED, CANCELED)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Reservation management endpoints"
+    }
+  ]
+}

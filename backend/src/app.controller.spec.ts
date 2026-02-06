@@ -15,8 +15,11 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return success response with welcome message', () => {
+      const result = appController.getHello();
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('message', 'Welcome to EventFlow API');
+      expect(result).toHaveProperty('data', 'EventFlow API is running!');
     });
   });
 });

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -13,17 +17,33 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    
-    const existingUser = await this.usersService.findByEmail(createUserDto.email);
+    const existingUser = await this.usersService.findByEmail(
+      createUserDto.email,
+    );
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
 
     const user = await this.usersService.create(createUserDto);
 
+    // Generate JWT token for auto-login after registration
+    const payload = {
+      sub: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    };
+
     return {
+      success: true,
       message: 'User registered successfully',
-      user: { id: user._id.toString(), email: user.email, role: user.role }
+      data: {
+        access_token: this.jwtService.sign(payload),
+        user: {
+          id: user._id.toString(),
+          email: user.email,
+          role: user.role,
+        },
+      },
     };
   }
 
@@ -43,16 +63,24 @@ export class AuthService {
     }
 
     // Generate Token
-    const payload = { sub: user._id.toString(), email: user.email, role: user.role };
+    const payload = {
+      sub: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    };
 
     return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user._id.toString(),
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role
-      }
+      success: true,
+      message: 'Login successful',
+      data: {
+        access_token: this.jwtService.sign(payload),
+        user: {
+          id: user._id.toString(),
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+        },
+      },
     };
   }
 }
