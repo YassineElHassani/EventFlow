@@ -26,7 +26,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   // Automatically executed when token is valid
-  async validate(req: { headers: { authorization?: string } }, payload: JwtPayload) {
+  async validate(
+    req: { headers: { authorization?: string } },
+    payload: JwtPayload,
+  ) {
     const token = req.headers.authorization?.replace('Bearer ', '') || '';
     if (this.authService.isTokenBlacklisted(token)) {
       throw new UnauthorizedException('Try logging in again');
