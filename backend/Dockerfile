@@ -15,8 +15,11 @@ RUN npm install
 # 5. Copy the rest of the code
 COPY . .
 
-# 6. Expose the port (NestJS runs on 3000 by default inside container)
+# 6. Build the application
+RUN npm run build
+
+# 7. Expose the port (NestJS runs on 3000 by default inside container)
 EXPOSE 3000
 
-# 7. Start NestJS in Development mode
-CMD ["npm", "run", "start:dev"]
+# 8. Start NestJS in Production mode
+CMD ["node", "dist/main.js"]
