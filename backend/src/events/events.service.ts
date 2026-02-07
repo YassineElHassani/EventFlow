@@ -48,6 +48,23 @@ export class EventsService {
     return updatedEvent;
   }
 
+  /**
+   * Atomically increment or decrement reservedSeats using MongoDB $inc.
+   * @param eventId - The event ID
+   * @param delta - Positive to increment, negative to decrement
+   */
+  async incrementSeats(eventId: string, delta: number): Promise<Event> {
+    const updated = await this.eventModel
+      .findByIdAndUpdate(
+        eventId,
+        { $inc: { reservedSeats: delta } },
+        { new: true },
+      )
+      .exec();
+    if (!updated) throw new NotFoundException(`Event #${eventId} not found`);
+    return updated;
+  }
+
   async remove(id: string): Promise<Event> {
     const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
     if (!deletedEvent) throw new NotFoundException(`Event #${id} not found`);

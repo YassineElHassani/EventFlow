@@ -6,25 +6,30 @@ import {
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserRole } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
+  private blacklistedTokens = new Set<string>();
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersService.findByEmail(
-      createUserDto.email,
-    );
+  async register(registerDto: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
 
-    const user = await this.usersService.create(createUserDto);
+    // Force role to PARTICIPANT — admins are created via the admin API only
+    const user = await this.usersService.create({
+      ...registerDto,
+      role: UserRole.PARTICIPANT,
+    });
 
     // Generate JWT token for auto-login after registration
     const payload = {
@@ -82,5 +87,17 @@ export class AuthService {
         },
       },
     };
+  }
+
+  logout(token: string) {
+    this.blacklistedTokens.add(token);
+    return {
+      success: true,
+      message: 'Logged out successfully',
+    };
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.blacklistedTokens.has(token);
   }
 }

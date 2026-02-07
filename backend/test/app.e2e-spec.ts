@@ -77,7 +77,7 @@ describe('EventFlow E2E Scenario', () => {
     await app.close();
   });
 
-  // Admin registration
+  // Admin registration (registers as participant, then promoted via DB)
   it('/auth/register (POST) - Register Admin', async () => {
     await request(app.getHttpServer() as App)
       .post('/auth/register')
@@ -85,9 +85,16 @@ describe('EventFlow E2E Scenario', () => {
         fullName: 'Admin E2E',
         email: 'admin@e2e.com',
         password: 'password123',
-        role: UserRole.ADMIN, // Force Admin Role
       })
       .expect(201);
+
+    // Promote to admin directly in DB (simulates admin creation via admin API)
+    await connection
+      .collection('users')
+      .updateOne(
+        { email: 'admin@e2e.com' },
+        { $set: { role: UserRole.ADMIN } },
+      );
   });
 
   // Admin login
@@ -113,7 +120,6 @@ describe('EventFlow E2E Scenario', () => {
         fullName: 'Participant E2E',
         email: 'user@e2e.com',
         password: 'password123',
-        role: UserRole.PARTICIPANT,
       })
       .expect(201);
   });
