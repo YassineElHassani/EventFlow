@@ -138,7 +138,7 @@ export default async function HomePage() {
               {
                 icon: Shield,
                 title: 'Secure & Reliable',
-                desc: 'JWT-based authentication, role-based access, and real-time seat management.',
+                desc: 'Your bookings and personal information are protected. Only authorized users can access sensitive features.',
               },
             ].map((f) => (
               <div key={f.title} className="rounded-xl bg-white p-6 shadow-soft hover:shadow-soft-lg transition-all">
