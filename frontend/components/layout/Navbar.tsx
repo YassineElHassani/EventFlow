@@ -5,8 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { UserRole } from '@/lib/types';
-import { Menu, X, LogOut, LayoutDashboard, Zap } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 
 export default function Navbar() {
@@ -34,9 +35,13 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white">
-              <Zap className="h-5 w-5" />
-            </div>
+            <Image
+              src="/icon.png"
+              alt="EventFlow"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
             <span className="text-xl font-bold text-text group-hover:text-primary transition-colors">
               EventFlow
             </span>

@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EventFlow Frontend
 
-## Getting Started
+Next.js application for the EventFlow platform with SSR, Redux state management, and Tailwind CSS.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.local.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable            | Description                       | Required |
+|---------------------|-----------------------------------|----------|
+| NEXT_PUBLIC_API_URL | Backend API URL                   | Yes      |
+| API_URL_INTERNAL    | Backend URL for SSR (Docker only) | No       |
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command          | Description                |
+|------------------|----------------------------|
+| npm run dev      | Start development server   |
+| npm run build    | Production build           |
+| npm start        | Serve production build     |
+| npm run lint     | Lint with ESLint           |
+| npm test         | Run tests                  |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Route                         | Access      | Rendering |
+|-------------------------------|-------------|-----------|
+| /                             | Public      | SSR       |
+| /events/:id                   | Public      | SSR       |
+| /login                        | Public      | CSR       |
+| /register                     | Public      | CSR       |
+| /admin/dashboard              | Admin       | CSR       |
+| /admin/events                 | Admin       | CSR       |
+| /admin/reservations           | Admin       | CSR       |
+| /admin/users                  | Admin       | CSR       |
+| /dashboard                    | Participant | CSR       |
+| /dashboard/reservations       | Participant | CSR       |
+| /dashboard/reservations/:id   | Participant | CSR       |
 
-## Deploy on Vercel
+## Testing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm test            # 16 tests (Jest + React Testing Library)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech
+
+Next.js 16 | React 19 | Redux Toolkit | Tailwind CSS v4 | react-hook-form | Jest

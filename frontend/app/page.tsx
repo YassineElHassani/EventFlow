@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import EventCard from '@/components/EventCard';
-import { CalendarDays, Users, Shield, ArrowRight, Sparkles } from 'lucide-react';
+import { CalendarDays, Users, Shield, ArrowRight } from 'lucide-react';
 import type { Event, ApiResponse } from '@/lib/types';
 
 async function getPublicEvents(): Promise<Event[]> {
