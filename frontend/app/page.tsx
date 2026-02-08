@@ -161,6 +161,15 @@ export default async function HomePage() {
               <h2 className="text-3xl font-bold text-text">Upcoming Events</h2>
               <p className="mt-2 text-text-muted">Discover and book your next experience</p>
             </div>
+            {events.length > 3 && (
+              <Link
+                href="/events"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+              >
+                View All Events
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
           </div>
           {events.length === 0 ? (
             <div className="text-center py-20">
@@ -170,7 +179,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
+              {events.slice(0, 6).map((event) => (
                 <EventCard key={event._id} event={event} />
               ))}
             </div>

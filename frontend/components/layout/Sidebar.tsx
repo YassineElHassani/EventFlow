@@ -11,11 +11,11 @@ import {
   Ticket,
   Users,
   LogOut,
-  Zap,
   ChevronLeft,
   Menu,
 } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 import { UserRole } from '@/lib/types';
 
 const adminLinks = [
@@ -50,9 +50,13 @@ export default function Sidebar() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-700">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white flex-shrink-0">
-            <Zap className="h-4 w-4" />
-          </div>
+          <Image
+            src="/icon.png"
+            alt="EventFlow"
+            width={32}
+            height={32}
+            className="rounded-lg flex-shrink-0"
+          />
           {!collapsed && (
             <span className="text-lg font-bold text-white">EventFlow</span>
           )}
