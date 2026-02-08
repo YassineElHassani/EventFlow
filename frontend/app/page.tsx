@@ -161,7 +161,7 @@ export default async function HomePage() {
               <h2 className="text-3xl font-bold text-text">Upcoming Events</h2>
               <p className="mt-2 text-text-muted">Discover and book your next experience</p>
             </div>
-            {events.length > 3 && (
+            {events.length > 6 && (
               <Link
                 href="/events"
                 className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
