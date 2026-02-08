@@ -2,7 +2,7 @@
 
 Full-stack event management and reservation platform built with NestJS, Next.js, and MongoDB. Organizers create and manage events while participants discover, book seats, and download PDF tickets.
 
-Live demo: [Frontend (Vercel)](https://event-flow-ashy.vercel.app) | [Backend API (Render)](https://eventflow-backend-fwtk.onrender.com)
+Live demo: [Frontend (Vercel)](https://event-flow-ashy.vercel.app)
 
 ---
 
