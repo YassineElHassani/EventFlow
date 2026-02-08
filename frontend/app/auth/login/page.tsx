@@ -9,7 +9,8 @@ import { login, clearError } from '@/store/slices/authSlice';
 import { UserRole } from '@/lib/types';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { Zap, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface LoginForm {
   email: string;
@@ -47,9 +48,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-primary text-white flex items-center justify-center">
-              <Zap className="h-5 w-5" />
-            </div>
+            <Image src="/icon.png" alt="EventFlow" width={40} height={40} className="rounded-lg" />
             <span className="text-2xl font-bold text-text">EventFlow</span>
           </Link>
           <h1 className="mt-6 text-2xl font-bold text-text">Welcome back</h1>
