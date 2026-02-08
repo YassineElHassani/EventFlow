@@ -7,9 +7,13 @@ async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const usersService = app.get(UsersService);
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@eventflow.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  const adminName = process.env.ADMIN_NAME || 'Admin User';
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminName = process.env.ADMIN_NAME;
+
+  if (!adminEmail || !adminPassword || !adminName) {
+    throw new Error('Missing required environment variables: ADMIN_EMAIL, ADMIN_PASSWORD, or ADMIN_NAME');
+  }
 
   const existing = await usersService.findByEmail(adminEmail);
   if (existing) {

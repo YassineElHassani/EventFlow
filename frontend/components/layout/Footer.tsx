@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -9,9 +9,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-                <Zap className="h-4 w-4" />
-              </div>
+              <Image
+                src="/icon.png"
+                alt="EventFlow"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="text-lg font-bold text-text">EventFlow</span>
             </Link>
             <p className="mt-3 text-sm text-text-muted">
